@@ -16,10 +16,17 @@ public class PlayerController : MonoBehaviour
 
     Rigidbody2D playerRB;
 
+    SpriteRenderer playerSR;
+    public Color alive;
+    public Color heaven;
+    public Color hell;
+
     // Start is called before the first frame update
     void Start()
     {
         playerRB = GetComponent<Rigidbody2D>();
+
+        playerSR = GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
