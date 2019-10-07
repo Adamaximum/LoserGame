@@ -111,7 +111,7 @@ public class PlayerController : MonoBehaviour
     {
         if(collision.gameObject.tag == "Spikes")
         {
-            playerState = 1;
+            playerState = 2;
         }
     }
 }
