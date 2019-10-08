@@ -12,19 +12,23 @@ public class PlayerController : MonoBehaviour
     public float playerSpeed = 0.2f;
 
     float horizontalInput;
+    float verticalInput;
 
+    [Header ("Jump Settings")]
     public float jumpVelocity = 2;
-
     public bool jumpCheck;
-
     public float fallMultiplier = 2.5f;
 
     Rigidbody2D playerRB;
 
     SpriteRenderer playerSR;
+
+    [Header ("State Colors")]
     public Color alive;
     public Color heaven;
     public Color hell;
+
+    public bool hellContact;
 
     // Start is called before the first frame update
     void Start()
@@ -50,6 +54,12 @@ public class PlayerController : MonoBehaviour
         else if (playerState == 2)
         {
             playerSR.color = hell;
+            GetComponent<BoxCollider2D>().isTrigger = true;
+        }
+
+        if (hellContact)
+        {
+            playerRB.velocity = new Vector2(0f, 0f);
         }
     }
 
@@ -68,30 +78,52 @@ public class PlayerController : MonoBehaviour
             horizontalInput = 0;
         }
 
-        transform.position += new Vector3(horizontalInput, 0f, 0f);
+        if (playerState == 2 && hellContact)
+        {
+            if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+            {
+                verticalInput = -playerSpeed;
+            }
+            else if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+            {
+                verticalInput = playerSpeed;
+            }
+            else
+            {
+                verticalInput = 0;
+            }
+        }
+        else
+        {
+            verticalInput = 0;
+        }
 
-        if (playerState == 0)
+        transform.position += new Vector3(horizontalInput, verticalInput, 0f);
+
+        if (playerState == 0) // Jumping is Normal
         {
             if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && jumpCheck == true)
             {
                 playerRB.velocity = Vector2.up * jumpVelocity;
             }
         }
-        else if (playerState == 1)
+        else if (playerState == 1) // Jumping is Infinite
         {
             if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
             {
                 playerRB.velocity = Vector2.up * jumpVelocity;
             }
         }
-
-        if (playerRB.velocity.y < 0)
+        if (playerState < 2) // Fall Multiplier is not active when Hell is active
         {
-            playerRB.velocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+            if (playerRB.velocity.y < 0)
+            {
+                playerRB.velocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+            }
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnCollisionEnter2D(Collision2D collision) // Collision Enter
     {
         if (collision.gameObject.tag == "Ground")
         {
@@ -103,7 +135,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnCollisionExit2D(Collision2D collision)
+    private void OnCollisionExit2D(Collision2D collision) // Collision Exit
     {
         if (collision.gameObject.tag == "Ground")
         {
@@ -111,11 +143,33 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision) // Trigger Enter
     {
         if(collision.gameObject.tag == "Spikes")
         {
             playerState = 2;
+            playerRB.velocity = new Vector2(0f, 0f);
+        }
+    }
+
+    private void OnTriggerStay2D(Collider2D collision) // Trigger Stay
+    {
+        if (collision.gameObject.tag == "Ground" && playerState == 2)
+        {
+            playerRB.gravityScale = 0;
+            hellContact = true;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision) // Trigger Exit
+    {
+        if (collision.gameObject.tag == "Ground" && playerState == 2)
+        {
+            if (playerState == 2)
+            {
+                playerRB.gravityScale = 1;
+            }
+            hellContact = false;
         }
     }
 }
