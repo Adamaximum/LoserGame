@@ -129,7 +129,7 @@ public class PlayerController : MonoBehaviour
         {
             jumpCheck = true;
         }
-        if (collision.gameObject.tag == "Bullet")
+        if (collision.gameObject.tag == "Bullet" && playerState == 0)
         {
             playerState = 1;
         }
@@ -145,10 +145,15 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision) // Trigger Enter
     {
-        if(collision.gameObject.tag == "Spikes")
+        if(collision.gameObject.tag == "Spikes" && playerState == 0)
         {
             playerState = 2;
             playerRB.velocity = new Vector2(0f, 0f);
+        }
+
+        if(collision.gameObject.name == "Resurrector")
+        {
+            playerState = 0;
         }
     }
 
