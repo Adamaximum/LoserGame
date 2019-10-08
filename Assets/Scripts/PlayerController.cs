@@ -97,6 +97,10 @@ public class PlayerController : MonoBehaviour
         {
             jumpCheck = true;
         }
+        if (collision.gameObject.tag == "Bullet")
+        {
+            playerState = 1;
+        }
     }
 
     private void OnCollisionExit2D(Collision2D collision)
